@@ -24,6 +24,8 @@ loadTopicsFromGoogle <- function(topics, n){
     getTopicFromGoogle(topic, n)
   }
 }
+
+
 # TODO Dokończyć, naprawić...
 getTopicFromGoogle  <- function(topic, n){
   GetLibs(c("tm", "stringi", "RCurl", "XML"))
