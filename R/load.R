@@ -26,12 +26,10 @@ loadTopicsFromGoogle <- function(topics, n){
 }
 
 
-
-# TODO Dokończyć, naprawić...
 getTopicFromGoogle  <- function(topic, n){
   GetLibs(c("tm", "stringi", "RCurl", "XML"))
   
-  site <- getForm("http://www.google.com/search", q=stri_paste("~",topic), gws_rd="cr", num=n, pws="0")
+  site <- getForm("http://www.google.com/search", q=stri_paste("~",topic), gws_rd="cr", num=n, pws="0", gfe_rd="cr")
   doc  <- htmlParse(site, asText = TRUE)
   saveXML(doc, "output/out.html", indent = TRUE)
   #     print(htmlTreeParse(site))
@@ -44,10 +42,11 @@ getTopicFromGoogle  <- function(topic, n){
   articles <- character(n)
   
   for (i in 1:n) {  
-    articles[i] <- stri_flatten(readLines(links[[i]]), col = " ")
+    articles[i] <- stri_flatten(readLines(stri_paste("http://www.google.pl",links[[i]]), warn=FALSE))
   }
   
   docs <- Corpus(VectorSource(articles))
-  
 }
 
+
+load
