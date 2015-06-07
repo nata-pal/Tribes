@@ -18,6 +18,9 @@ TESTMODE <<- FALSE
         corp <- Corpus(VectorSource(corpsVector[[i]]))
         cleanCorp <- cleanDocs(corp, LANG)
         getDocsDissimPlot(cleanCorp)
+        
+        save(corp, file = "output/corp", ascii = TRUE)
+        save(cleanCorp, file = "output/cleanCorp", ascii = TRUE)
   }
 # }
 

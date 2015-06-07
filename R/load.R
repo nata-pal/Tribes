@@ -20,7 +20,7 @@ loadTopicsFromWiki <- function(topics, lang){
 # Lines in the file starting with "-" are not included
 getTopics <- function(filepath){
   getLibs("stringi")
-  topics  <- scan(filepath, blank.lines.skip = TRUE, sep="\n", what = "character")
+  topics  <- scan(filepath, blank.lines.skip = TRUE, sep="\n", what = "character", quiet = TRUE)
   
   remove <- c()
   for (topic in topics){
@@ -48,8 +48,9 @@ loadTopicsFromGoogle <- function(topics, n){
       corp <- getTopicFromGoogle(topic, n)
       cat(typeof(corp))
       corpArray[length(corpArray)+1] <- corp
+      cat(meta(corpArray[length(corpArray)+1], "id", "local"))
   }
-  cat(typeof(corpArray[[1]]))
+#   cat(typeof(corpArray[[1]]))
   corpArray
 }
 
@@ -72,9 +73,13 @@ getTopicFromGoogle  <- function(topic, n){
   articles <- character(n)
   
   for (i in 1:n) {  
-    articles[i] <- stri_flatten(readLines(stri_paste("http://www.google.pl",links[[i]]), warn=FALSE), col = " ")
+#      articles[i] <- stri_flatten(scan(stri_paste("http://www.google.pl",links[[i]]), what = 'character', allowEscapes = FALSE,  encoding = "UTF-8"), col = " ")
+    articles[i] <- stri_flatten(readLines(stri_paste("http://www.google.pl",links[[i]]), warn=FALSE, encoding = "UTF-8"), col = " ")
   }
-  
+   
   docs <- Corpus(VectorSource(articles))
+  meta(docs, type = "local", tag = "id") <- links
+  print(meta(docs, type = "local", tag = "id"))
+  docs
 }
 
