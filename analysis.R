@@ -13,11 +13,12 @@ TESTMODE <<- FALSE
   wikiArticles <- loadTopicsFromWiki(topics, LANG)
   corpsVector <- loadTopicsFromGoogle(topics, ARTICLES_PER_TOPIC)
   for (i in 1:length(topics)){
-#         i <- 1
         wiki <- wikiArticles[[i]]
-        corp <- Corpus(VectorSource(corpsVector[[i]]))
+        corp <- corpsVector[[topics[[i]]]]
+#         corp <- Corpus(VectorSource(corpsVector[[i]]))
         cleanCorp <- cleanDocs(corp, LANG)
-        getDocsDissimPlot(cleanCorp)
+        dtm <- getDocsDissimPlot(cleanCorp)
+        tdm <- getTermsDissimPlot(cleanCorp)
         
         save(corp, file = "output/corp", ascii = TRUE)
         save(cleanCorp, file = "output/cleanCorp", ascii = TRUE)

@@ -30,7 +30,9 @@ getTermsDissimPlot <- function(corpora){
 #   cat(docsdissim)
   
   h <<- hclust(termsdissim, method = "ward.D2" ) 
-  plot(h, sub = "", hang = -1)
+  plot(h, sub = meta(corpora, tag="topic", type="corpus"), hang = -1)
+
+  termsdissim
 }
 
 
@@ -44,6 +46,8 @@ getDocsDissimPlot <- function(corpora){
   
   #   cat(docsdissim)
   
-  h <<- hclust(docsdissim, method = "ward.D2" ) 
-  plot(h, sub = "", hang = -1)
+  h <<- hclust(docsdissim, method = "ward.D2") 
+  plot(h, sub = meta(corpora, tag="topic", type="corpus"), hang = -1)
+  
+  docsdissim
 }

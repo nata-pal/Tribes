@@ -43,25 +43,24 @@ getTopics <- function(filepath){
 # Returns vector of corporas containing n docs each about given topics
 loadTopicsFromGoogle <- function(topics, n){
   corpArray <- list();
-  for(topic in topics){
+  print(corpArray)
+    for (topic in topics) {
 #     corpArray <- c(corpArray, getTopicFromGoogle(topic, n))
       corp <- getTopicFromGoogle(topic, n)
       cat(typeof(corp))
-      corpArray[length(corpArray)+1] <- corp
-      cat(meta(corpArray[length(corpArray)+1], "id", "local"))
-  }
-#   cat(typeof(corpArray[[1]]))
+      
+      corpArray[[topic]] <- corp
+    }
   corpArray
 }
 
-# Returns 
+ 
 getTopicFromGoogle  <- function(topic, n){
   getLibs(c("tm", "stringi", "RCurl", "XML"))
   
   site <- getForm("http://www.google.com/search", q=stri_paste("~",topic), gws_rd="cr", num=n, pws="0", gfe_rd="cr")
   doc  <- htmlParse(site, asText = TRUE)
   saveXML(doc, "output/out.html", indent = TRUE)
-  #     print(htmlTreeParse(site))
     
   links  <- xpathSApply(doc, "//li[@class='g']//h3[@class='r']/a", xmlGetAttr, "href")
   
@@ -71,15 +70,21 @@ getTopicFromGoogle  <- function(topic, n){
   }
   
   articles <- character(n)
+  titles <- character(n)
   
   for (i in 1:n) {  
 #      articles[i] <- stri_flatten(scan(stri_paste("http://www.google.pl",links[[i]]), what = 'character', allowEscapes = FALSE,  encoding = "UTF-8"), col = " ")
     articles[i] <- stri_flatten(readLines(stri_paste("http://www.google.pl",links[[i]]), warn=FALSE, encoding = "UTF-8"), col = " ")
+    titles[i] <- stri_extract_first_regex(str = articles[[i]], pattern = "(?<=<title).*?(?=[^<>]*</title>)")
+    cat(titles[i])
+    cat("\n")
   }
+
+  
    
   docs <- Corpus(VectorSource(articles))
   meta(docs, type = "local", tag = "id") <- links
-  print(meta(docs, type = "local", tag = "id"))
+  meta(docs, type = "corpus", tag = "topic") <- topic
   docs
 }
 
