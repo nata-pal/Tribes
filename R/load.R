@@ -73,17 +73,21 @@ getTopicFromGoogle  <- function(topic, n){
   titles <- character(n)
   
   for (i in 1:n) {  
-#      articles[i] <- stri_flatten(scan(stri_paste("http://www.google.pl",links[[i]]), what = 'character', allowEscapes = FALSE,  encoding = "UTF-8"), col = " ")
     articles[i] <- stri_flatten(readLines(stri_paste("http://www.google.pl",links[[i]]), warn=FALSE, encoding = "UTF-8"), col = " ")
-    titles[i] <- stri_extract_first_regex(str = articles[[i]], pattern = "(?<=<title).*?(?=[^<>]*</title>)")
-    cat(titles[i])
-    cat("\n")
+    
+    hm <- gregexpr("(.*?)(?=</head>)", articles[i], perl=TRUE)
+    h <- as.character(regmatches(articles[i], hm))
+    sm <- gregexpr("(?<=<title)(.*?)(?=</title>)", h, perl=TRUE)
+    s <- as.character(regmatches(h, sm))
+    if(s == "character(0)"){
+      s <- stri_paste(topic, " ", i)
+    }
+    titles[i] <- stri_replace_all_regex(s, "", pattern = "> *")
   }
-
   
-   
   docs <- Corpus(VectorSource(articles))
-  meta(docs, type = "local", tag = "id") <- links
+  meta(docs, type = "local", tag = "link") <- links
+  meta(docs, type = "local", tag = "title") <- titles
   meta(docs, type = "corpus", tag = "topic") <- topic
   docs
 }
