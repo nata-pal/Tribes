@@ -1,3 +1,5 @@
+
+
 # Returns cleaned corpora
 cleanDocs <- function(corpora, lang){
   getLibs(c("tm", "SnowballC"))
@@ -19,6 +21,8 @@ cleanDocs <- function(corpora, lang){
 }
 
 
+
+
 getTermsDissimPlot <- function(corpora){
   getLibs(c("tm", "proxy"))
   
@@ -32,7 +36,7 @@ getTermsDissimPlot <- function(corpora){
   h <<- hclust(termsdissim, method = "ward.D2" ) 
   plot(h, sub = meta(corpora, tag="topic", type="corpus"), hang = -1)
 
-  termsdissim
+  docsTDM
 }
 
 
@@ -49,5 +53,5 @@ getDocsDissimPlot <- function(corpora){
   h <<- hclust(docsdissim, method = "ward.D2") 
   plot(h, sub = meta(corpora, tag="topic", type="corpus"), hang = -1)
   
-  docsdissim
+  docsDTM
 }

@@ -9,4 +9,4 @@ getLibs  <- function(names){
   } 
 }
 
-requiredPackages <<- c("tm", "stringi", "proxy", "SnowballC", "RCurl", "XML")
+requiredPackages <<- c("tm", "stringi", "proxy", "SnowballC", "RCurl", "XML", "qdap")

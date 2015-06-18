@@ -6,6 +6,7 @@ TESTMODE <<- FALSE
 # TESTMODE <<- TRUE
 
 
+
 # PROCESSING:
 # go <- function(){
   VERBOSE  <<- TESTMODE
@@ -17,8 +18,16 @@ TESTMODE <<- FALSE
         corp <- corpsVector[[topics[[i]]]]
 #         corp <- Corpus(VectorSource(corpsVector[[i]]))
         cleanCorp <- cleanDocs(corp, LANG)
-        dtm <- getDocsDissimPlot(cleanCorp)
-        tdm <- getTermsDissimPlot(cleanCorp)
+        dtm.params = list (
+          weighting=weightTfIdf, 
+          bounds=list(global = c(2, Inf)),
+          wordLengths = c(2,Inf),
+          termFreq= c(2,10)
+        )
+        dtm <- DocumentTermMatrix(cleanCorp, control = dtm.params)
+        frTerms <- findFreqTerms(dtm, 0.5)
+
+        dtm.df <- as.data.frame(inspect(dtm))
         
         save(corp, file = "output/corp", ascii = TRUE)
         save(cleanCorp, file = "output/cleanCorp", ascii = TRUE)
