@@ -9,7 +9,10 @@ getLibs  <- function(names){
   } 
 }
 
-requiredPackages <<- c("tm", "stringi", "proxy", "SnowballC", "RCurl", "XML", "qdap", "RTextTools")
+loadAllLibs <- function(){
+  requiredPackages <- c("tm", "stringi", "proxy", "SnowballC", "RCurl", "XML", "qdap", "RTextTools")
+  getLibs(requiredPackages)
+}
 
 setClasses <- function(links){
   classes <- c()
@@ -21,16 +24,18 @@ setClasses <- function(links){
     cat(stri_paste("Wprowadź klasę decyzyjną dla strony ", link, "\n"))
     class <- readline(prompt = "class: ")
     classes <- c(classes, class)
-    if(class=='q'){
-      print(class)
-      stop
+    if(stri_cmp_eq(class, "q")){
+      cat("Function canceled")
+      return()
     }
     
   }
+
   cat("\nAll classes set: \n")
   print(classes)
   classes
 }
+
 
 setDFClasses <- function(dataframe){
   classes <- c()
@@ -69,4 +74,10 @@ setCorpClasses <- function(corp){
     }
   }
   classes
+}
+
+saveAllCorps <- function(cv){
+  for (i in 1:length(cv)){
+    
+  }
 }

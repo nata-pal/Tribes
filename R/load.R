@@ -1,5 +1,13 @@
-# Flag determining whether processing infos should be printed out
-VERBOSE <<- FALSE
+
+# Loads R objects reffering given topic to Global Environment
+loadTopic <- function(topic){
+  getLibs("stringi")
+  path <- stri_paste("data/", topic, "/")
+  files <- list.files(path = path, full.names = TRUE, pattern = ".*Rdata", recursive = TRUE, include.dirs = FALSE)
+  for(file in files){
+    load(file, env = .GlobalEnv)
+  }
+}
 
 # Returns corpora of wikipedia articles about given topics
 loadTopicsFromWiki <- function(topics, lang){
