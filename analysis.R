@@ -8,9 +8,9 @@ loadFunctions <- function(){
 VERBOSE  <<- TRUE
 loadFunctions()
 
+
+# ***GOOGLE***
 # Creating directory in /data directory with text information for topics listed in /data/topics.txt
 # Function requires specifing classes for downloaded articles
 # prepareAll()
-
-
-classify(dtm, classes)
+# classify(dtm, classes)

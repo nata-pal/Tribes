@@ -21,7 +21,11 @@ setClasses <- function(links){
       link <- stri_paste("http://www.google.pl", link)
     }
     browseURL(link)
-    cat(stri_paste("Wprowadź klasę decyzyjną dla strony ", link, "\n"))
+    print(stri_paste("Wprowadź klasę decyzyjną dla strony ", link, "\n"))
+    print("[F] - 'for' artykuł opowiada się za tematem")
+    print("[A] - 'against' artykuł opowiada się przeciw tematowi")
+    print("[N] - 'neither' artykuł zachowuje neutralny charakter")
+    print("[q] - 'quit' anuluj")
     class <- readline(prompt = "class: ")
     classes <- c(classes, class)
     if(stri_cmp_eq(class, "q")){
