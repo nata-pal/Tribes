@@ -63,7 +63,7 @@ ResortDtm <- function(working.dtm) {
   working.dtm$j <- working.df$j  # ditto for j values.
   working.dtm$v <- working.df$v  # ditto for v values.
   return(working.dtm) # pass back the (now sorted) data frame.
-}  
+}
 
 as.numeric.class <- function(cl){
   cl <- replace(cl, cl=='F', 1)

@@ -10,7 +10,7 @@ getLibs  <- function(names){
 }
 
 loadAllLibs <- function(){
-  requiredPackages <- c("tm", "stringi", "proxy", "SnowballC", "RCurl", "XML", "qdap", "RTextTools")
+  requiredPackages <- c("tm", "stringi", "proxy", "SnowballC", "RCurl", "XML", "qdap", "RTextTools", "tm.plugin.webmining")
   getLibs(requiredPackages)
 }
 
