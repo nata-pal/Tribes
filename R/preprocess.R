@@ -1,7 +1,7 @@
 
 
 # Returns cleaned corpora
-cleanDocs <- function(corpora, lang){
+cleanDocs <- function(corpora, lang = "en"){
   getLibs(c("tm", "SnowballC", "stringi"))
   
   corpora <- tm_map(corpora, content_transformer(function(x) stri_replace_all_regex(as.character(x), "<!--.+?-->", " ")))
@@ -10,6 +10,8 @@ cleanDocs <- function(corpora, lang){
   corpora <- tm_map(corpora, content_transformer(function(x) stri_replace_all_regex(as.character(x), "<head.+?</head>", " ")))
   corpora <- tm_map(corpora, content_transformer(function(x) stri_replace_all_regex(as.character(x), "<.+?>", " ")))
   corpora <- tm_map(corpora, content_transformer(function(x) gsub("http[[:alnum:]]*", "", x)))
+  corpora <- tm_map(corpora, content_transformer(function(x) iconv(enc2utf8(x), sub = "byte")))
+  
   
   corpora <- tm_map(corpora, content_transformer(tolower))
   corpora <- tm_map(corpora, removeNumbers)
@@ -18,5 +20,7 @@ cleanDocs <- function(corpora, lang){
   corpora <- tm_map(corpora, stemDocument, language = lang) 
   corpora <- tm_map(corpora, stripWhitespace)
   
+  save(corpora, file="data/corpuses/_cleaned_corpus.Rdata")
+  corpora
 }
 

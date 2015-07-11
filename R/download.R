@@ -6,20 +6,36 @@ downloadArticles <- function(topic){
   
   site <- getForm("http://www.google.com/search", 
                   q=stri_paste("~",topic), 
-                  safe="active",
-                  as_sitesearch="wordpress.com", 
-                  as_qdr="all", 
-                  lr="lang_en", 
+#                   safe="active",
+#                   as_sitesearch="wordpress.com", 
+#                   as_qdr="all", 
+#                   lr="lang_en", 
+#                   hl="en", 
+#                   gl="en", 
+#                   gws_rd="cr", 
+#                   num=n, 
+#                   pws="0", 
+#                   gfe_rd="cr"
+                              
                   hl="en", 
-                  gl="en", 
-                  gws_rd="cr", 
-                  num=n, 
-                  pws="0", 
-                  gfe_rd="cr"
+                  gl="en",
+                  num=n,
+                  pws="0",
+                  ie="UTF-8",
+                  tbm="blg",
+                  source="univ",
+                  tbs="blgt:b",
+                  tbo="u",
+                  sa="X",
+#                   ei="pzahVYWlAcWiygPKlZ2oDA",
+#                   ved="0CBQQ-Ag",
+                  gws_rd="cr"
+
+
                   )
   print("Google search result ready")
   doc  <- htmlParse(site, asText = TRUE)
-#   print(doc)
+  print(doc)
   saveXML(doc, "output/out.html", indent = TRUE)
   
   links  <<- xpathSApply(doc, "//li[@class='g']//h3[@class='r']/a", xmlGetAttr, "href")
@@ -52,6 +68,7 @@ downloadArticles <- function(topic){
     articles[i] <- site
     topics[i] <- topic
     ids[i] <- stri_paste(topic, formatC(i, width = 2, format=, flag="0") )
+    ids[i] <- stri_replace_all_fixed(str = ids[i], pattern = " ", replacement = "_")
   }
   if(length(sitesNotFound)){
     articles <- articles[-sitesNotFound]
@@ -77,12 +94,12 @@ merge_corpuses <- function(){
   dirpath <- "data/corpuses/"
   corpuses <- dir(dirpath, pattern = filepattern)
   if(length(corpuses)>0){
-    load(file = stri_paste(dirpath, corpuses[1]))
-    merged <- docs
+    objName <- load(file = stri_paste(dirpath, corpuses[1]))
+    merged <- get(objName)
     corpuses <- corpuses[2:length(corpuses)]
     for(file in corpuses){
-      load(file = stri_paste(dirpath, file))
-      merged <- c(docs, merged)
+      objName <- load(file = stri_paste(dirpath, file))
+      merged <- c(get(objName), merged)
     }
     save(merged, file="data/corpuses/_merged_corpus.Rdata")
     merged
@@ -91,7 +108,7 @@ merge_corpuses <- function(){
 
 saveClassified <- function(corpus, classVector, name){
   meta(corpus, tag = "class", type = "local") <- classVector
-  save(docs, file=stri_paste("data/corpuses/", name, "_labeled.Rdata"))
+  save(corpus, file=stri_paste("data/corpuses/", name, "_labeled.Rdata"))
   corpus
 }
 

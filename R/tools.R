@@ -85,3 +85,22 @@ saveAllCorps <- function(cv){
     
   }
 }
+
+fixAllIds <- function(){
+  filepattern <- "*.Rdata"
+  dirpath <- "data/corpuses/"
+  corpuses <- dir(dirpath, pattern = filepattern, recursive = FALSE)
+  if(length(corpuses)>0){
+    for(file in corpuses){
+      objName <- load(file = stri_paste(dirpath, file))
+      corp <- get(objName)
+      corp <- tm_map(corp, function(x){
+        id <- meta(x, "id", "local")
+        id <- stri_replace_all_fixed(str = id, pattern = " ", replacement = "_")
+        meta(x, "id", "local") <- id
+        x
+      })
+      save(corp, file=stri_paste(dirpath, file))
+    }
+  }
+}
