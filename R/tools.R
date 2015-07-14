@@ -41,45 +41,6 @@ setClasses <- function(links){
 }
 
 
-setDFClasses <- function(dataframe){
-  classes <- c()
-  for (i in 1:nrow(x = dataframe)){
-    if (stri_startswith_fixed(dataframe[i,]$metalink, "/")) {
-      url <- stri_paste("http://www.google.pl", dataframe[i,]$metalink)
-    } else {
-      url <- dataframe[i,]$metalink
-    }
-    browseURL(url)
-    cat(stri_paste("Wprowadź klasę decyzyjną dla strony ", url, "\n"))
-    classes[[i]] <- readline(prompt = "class: ")
-    if(classes[[i]]=="q"){
-      print(classes[[i]])
-      return
-    }
-  }
-  dataframe$class <- classes
-  dataframe
-}
-
-setCorpClasses <- function(corp){
-  classes <- c()
-  for (i in 1:length(corp)){
-    if (stri_startswith_fixed(corp[[i]]$meta$link, "/")) {
-      url <- stri_paste("http://www.google.pl", corp[[i]]$meta$link)
-    } else {
-      url <- corp[[i]]$meta$link
-    }
-    browseURL(url)
-    cat(stri_paste("Wprowadź klasę decyzyjną dla strony ", url, "\n"))
-    classes[[i]] <- readline(prompt = "class: ")
-    if(classes[[i]]=="q"){
-      print(class[[i]])
-      return
-    }
-  }
-  classes
-}
-
 saveAllCorps <- function(cv){
   for (i in 1:length(cv)){
     
