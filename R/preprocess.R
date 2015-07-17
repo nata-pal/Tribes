@@ -27,7 +27,7 @@ cleanDocs <- function(corpora, lang = "en"){
 ClassTermMatrix <- function(corp){
   getLibs(c("plyr"))
   dtm <- DocumentTermMatrix(corp)
-  dtm.df <- as.data.frame(inspect(dtm))
+  dtm.df <- as.data.frame(as.matrix(dtm))
   row.class <- unlist(meta(corp, "class", "local"), recursive = FALSE)
   dtm.df <- cbind(dtm.df, row.class)
   
@@ -48,12 +48,17 @@ ClassTermMatrix <- function(corp){
   ctm
 }
 
+# returns conditional probs P(term|class)
 getConditionalProbs <- function(ctm){
   rownames(ctm) <- ctm$row.class
   ctm <- ctm[sapply(ctm, is.numeric)]
   
   nfor <- sum(ctm["F",])
   nagainst <- sum(ctm["A",])
+  cat("for total: ")
+  cat(nagainst)
+  cat("\nagainst total: ")
+  cat(nfor)
   
   f <- ctm["F",] / nfor
   a <- ctm["A",] / nagainst
@@ -61,9 +66,53 @@ getConditionalProbs <- function(ctm){
   rownames(d) <- "F-A"
   
   r <- rbind(a, f, d)
+  # Order by F-A
+  # r <- r[,order(-r[3,])]
   
   View(r)
   r
 }
+
+estimateNBClasses <- function(corp){
+  ctm <- ClassTermMatrix(corp)
+  cp <- getConditionalProbs(ctm)
+  dtm <- as.matrix(DocumentTermMatrix(corp))
+  dtm  <- dtmA <- dtmF<- dtm[,colnames(cp)]
+#   dtm[dtm>0] <- 1
+  
+  
+  View(as.data.frame(cp))
+  View(as.data.frame(ctm))
+  View(as.data.frame(dtm))
+
+  for(col in colnames(dtm)){
+    dtmA[,col] <- cp["A",col]^dtm[,col]
+    dtmF[,col] <- cp["F",col]^dtm[,col]
+  }
+
+
+#   dtmA <- sweep(dtm, MARGIN = 2, as.numeric(as.vector(cp["A",])), "^")
+#   dtmF <- sweep(dtm, MARGIN = 2, as.numeric(as.vector(cp["F",])), "^")
+
+
+  View(dtmA)
+  View(dtmF)
+  
+  pxc <- cbind(A = apply(dtmA, 1, prod), F = apply(dtmF, 1, prod))
+
+  View(pxc)
+
+  View(pxc)
+
+#   pxc <- prod(cp[])
+#   classProbs <- 
+#   class <- max(classProbs)
+    pxc
+}
+
+
+
+
+# Useful link: https://class.coursera.org/nlp/lecture/131
 
 
