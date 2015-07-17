@@ -25,7 +25,7 @@ cleanDocs <- function(corpora, lang = "en"){
 }
 
 ClassTermMatrix <- function(corp){
-  getLibs(c("plyr"))
+  getLibs(c("plyr", "tm"))
   dtm <- DocumentTermMatrix(corp)
   dtm.df <- as.data.frame(as.matrix(dtm))
   row.class <- unlist(meta(corp, "class", "local"), recursive = FALSE)
@@ -93,6 +93,11 @@ estimateNBClasses <- function(corp){
 
 #   dtmA <- sweep(dtm, MARGIN = 2, as.numeric(as.vector(cp["A",])), "^")
 #   dtmF <- sweep(dtm, MARGIN = 2, as.numeric(as.vector(cp["F",])), "^")
+  cat("\nmin A: ")
+  cat(min(dtmA))
+  cat("\nmin B: ")
+  cat(min(dtmF))
+
 
 
   View(dtmA)
@@ -102,7 +107,6 @@ estimateNBClasses <- function(corp){
 
   View(pxc)
 
-  View(pxc)
 
 #   pxc <- prod(cp[])
 #   classProbs <- 
