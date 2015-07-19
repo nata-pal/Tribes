@@ -18,7 +18,8 @@ downloadArticles <- function(topic){
 #                   gfe_rd="cr"
                               
                   hl="en", 
-                  gl="en",
+#                   gl="en",
+                  lr="lang_en",
                   num=n,
                   pws="0",
                   ie="UTF-8",
@@ -27,9 +28,9 @@ downloadArticles <- function(topic){
                   tbs="blgt:b",
                   tbo="u",
                   sa="X",
-#                   ei="pzahVYWlAcWiygPKlZ2oDA",
-#                   ved="0CBQQ-Ag",
-                  gws_rd="cr"
+                  ei="pzahVYWlAcWiygPKlZ2oDA",
+                  ved="0CBQQ-Ag",
+                  gws_rd="cr,ssl"
 
 
                   )

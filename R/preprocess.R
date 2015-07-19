@@ -69,11 +69,15 @@ getConditionalProbs <- function(ctm){
   # Order by F-A
   # r <- r[,order(-r[3,])]
   
-  View(r)
+#   View(r)
   r
 }
 
 estimateNBClasses <- function(corp){
+  getLibs("Brobdingnag")
+  
+  zero <- 1^(-300)
+  factor <- 10^10
   ctm <- ClassTermMatrix(corp)
   cp <- getConditionalProbs(ctm)
   dtm <- as.matrix(DocumentTermMatrix(corp))
@@ -81,37 +85,52 @@ estimateNBClasses <- function(corp){
 #   dtm[dtm>0] <- 1
   
   
-  View(as.data.frame(cp))
-  View(as.data.frame(ctm))
-  View(as.data.frame(dtm))
+#   View(as.data.frame(cp))
+#   View(as.data.frame(ctm))
+#   View(as.data.frame(dtm))
 
   for(col in colnames(dtm)){
     dtmA[,col] <- cp["A",col]^dtm[,col]
     dtmF[,col] <- cp["F",col]^dtm[,col]
   }
 
+  dtmA[dtmA==0] <- zero
+  dtmF[dtmF==0] <- zero
+
+  dtmA <- log(dtmA)
+  dtmF <- log(dtmF)
 
 #   dtmA <- sweep(dtm, MARGIN = 2, as.numeric(as.vector(cp["A",])), "^")
 #   dtmF <- sweep(dtm, MARGIN = 2, as.numeric(as.vector(cp["F",])), "^")
-  cat("\nmin A: ")
-  cat(min(dtmA))
-  cat("\nmin B: ")
-  cat(min(dtmF))
-
-
-
-  View(dtmA)
-  View(dtmF)
+#   cat("\nmin A: ")
+#   cat(min(dtmA[dtmA>0]))
+#   cat("\nmin B: ")
+#   cat(min(dtmF[dtmF>0]))
+#   View(dtmA)
+#   View(dtmF)
   
-  pxc <- cbind(A = apply(dtmA, 1, prod), F = apply(dtmF, 1, prod))
+  pxc <- cbind(A = apply(dtmA, 1, sum), F = apply(dtmF, 1, sum))
 
-  View(pxc)
+#   View(pxc)
+  
+  meta <- meta(corp, "class", "local")
+  pc.a <- length(meta[meta=="A"])/(length(meta[meta=="A"])+length(meta[meta=="F"]))
+  pc.f <- length(meta[meta=="F"])/(length(meta[meta=="A"])+length(meta[meta=="F"]))
+  
+  pxc.log.a <- pxc[,"A"] + log(pc.a) 
+  pxc.log.f <- pxc[,"F"] + log(pc.f) 
 
+  pxc.log <- cbind(A = pxc.log.a, F = pxc.log.f)
 
-#   pxc <- prod(cp[])
+  View(pxc.log)
+
+  
+  cnb <- colnames(pxc.log)[max.col(pxc.log,ties.method="first")]
+  row.names(cnb) <- row.names(pxc.log)
+
 #   classProbs <- 
 #   class <- max(classProbs)
-    pxc
+  cnb
 }
 
 
