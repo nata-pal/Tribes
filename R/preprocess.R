@@ -1,4 +1,28 @@
+cleanDocs2 <- function(corpora, lang = "en"){
+  getLibs(c("tm", "boilerpipeR"))
 
+  
+  corpora <- tm_map(corpora, content_transformer(function(x) ArticleExtractor(x)))
+  corpora <- tm_map(corpora, content_transformer(function(x) iconv(enc2utf8(x), sub = "byte")))
+  
+  x <<- corpora
+  # readline()
+  
+  corpora <- tm_map(corpora, content_transformer(tolower))
+  corpora <- tm_map(corpora, removeNumbers)
+  corpora <- tm_map(corpora, removePunctuation)
+  corpora <- tm_map(corpora, removeWords, stopwords(lang))
+  corpora <- tm_map(corpora, stemDocument, language = lang) 
+  corpora <- tm_map(corpora, stripWhitespace)
+  
+  x <<- corpora
+  # readline()
+  
+  save(corpora, file="data/corpuses/_cleaned_corpus.Rdata")
+  alarm()
+  corpora
+  
+}
 
 # Returns cleaned corpora
 cleanDocs <- function(corpora, lang = "en"){

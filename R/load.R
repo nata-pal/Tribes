@@ -26,7 +26,7 @@ loadTopicsFromWiki <- function(topics, lang){
 # Returns vector of topics loaded from given filepath
 # The file should contain one topic in one line
 # Lines in the file starting with "-" are not included
-getTopics <- function(filepath){
+getTopics <- function(filepath, VERBOSE = FALSE){
   getLibs("stringi")
   topics  <- scan(filepath, blank.lines.skip = TRUE, sep="\n", what = "character", quiet = TRUE)
   

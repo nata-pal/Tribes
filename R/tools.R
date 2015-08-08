@@ -16,16 +16,18 @@ loadAllLibs <- function(){
 
 setClasses <- function(links){
   classes <- c()
+  i <- 1
   for (link in links){
     if (stri_startswith_fixed(link, "/")) {
       link <- stri_paste("http://www.google.pl", link)
     }
     browseURL(link)
-    print(stri_paste("Wprowadź klasę decyzyjną dla strony ", link, "\n"))
+    print(stri_paste(i, " Wprowadź klasę decyzyjną dla strony ", link, "\n"))
     print("[F] - 'for' artykuł opowiada się za tematem")
     print("[A] - 'against' artykuł opowiada się przeciw tematowi")
     print("[N] - 'neither' artykuł zachowuje neutralny charakter")
     print("[q] - 'quit' anuluj")
+    
     class <- readline(prompt = "class: ")
     classes <- c(classes, class)
     if(stri_cmp_eq(class, "q")){
@@ -33,11 +35,15 @@ setClasses <- function(links){
       return()
     }
     
+    i <- i+1
+    
+    
   }
 
   cat("\nAll classes set: \n")
   print(classes)
-  classes
+  
+  unlist(classes, recursive=FALSE)
 }
 
 

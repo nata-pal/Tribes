@@ -14,3 +14,20 @@ loadFunctions()
 # Function requires specifing classes for downloaded articles
 # prepareAll()
 # classify(dtm, classes)
+
+#Downloading data
+download <- function(){
+  topics <- getTopics("data/topics.txt")
+  for (topic in topics){
+    downloadWithGBlogSearchAPI(topic)
+  }
+  alarm()
+  m <<- merge_corpuses()
+  p <<- cleanDocs2(m)
+  
+}
+
+label <- function(){
+  c <- setClasses(meta(docs, "link", "local"))
+  saveClassified(docs, c, meta(docs, "topic", "local")[[1]])
+}
