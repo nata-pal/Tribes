@@ -5,10 +5,6 @@ loadFunctions <- function(){
   }
 }
 
-VERBOSE  <<- TRUE
-loadFunctions()
-
-
 # ***GOOGLE***
 # Creating directory in /data directory with text information for topics listed in /data/topics.txt
 # Function requires specifing classes for downloaded articles
@@ -16,7 +12,7 @@ loadFunctions()
 # classify(dtm, classes)
 
 #Downloading data
-download <- function(){
+downloadData <- function(){
   topics <- getTopics("data/topics.txt")
   for (topic in topics){
     downloadWithGBlogSearchAPI(topic)
@@ -27,7 +23,7 @@ download <- function(){
   
 }
 
-label <- function(){
+labelData <- function(){
   c <- setClasses(meta(docs, "link", "local"))
   saveClassified(docs, c, meta(docs, "topic", "local")[[1]])
 }

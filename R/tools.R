@@ -46,13 +46,6 @@ setClasses <- function(links){
   unlist(classes, recursive=FALSE)
 }
 
-
-saveAllCorps <- function(cv){
-  for (i in 1:length(cv)){
-    
-  }
-}
-
 fixAllIds <- function(){
   filepattern <- "*.Rdata"
   dirpath <- "data/corpuses/"
@@ -70,4 +63,54 @@ fixAllIds <- function(){
       save(corp, file=stri_paste(dirpath, file))
     }
   }
+}
+
+merge_corpuses <- function(){
+  #   filepattern <- "^[A-Za-z _]*_corpus.Rdata"
+  filepattern <- "^[A-Za-z _]*_labeled.Rdata"
+  dirpath <- "data/corpuses/"
+  corpuses <- dir(dirpath, pattern = filepattern)
+  cat(length(corpuses))
+  if(length(corpuses)>0){
+    objName <- load(file = stri_paste(dirpath, corpuses[1]))
+    merged <- get(objName)
+    corpuses <- corpuses[2:length(corpuses)]
+    for(file in corpuses){
+      objName <- load(file = stri_paste(dirpath, file))
+      merged <- c(get(objName), merged)
+    }
+    save(merged, file="data/corpuses/_merged_corpus.Rdata")
+    merged
+  }
+}
+
+saveClassified <- function(corpus, classVector, name){
+  meta(corpus, tag = "class", type = "local") <- classVector
+  save(corpus, file=stri_paste("data/corpuses/", name, "_labeled.Rdata"))
+  corpus
+}
+
+getTopics <- function(filepath, VERBOSE = FALSE){
+  # Returns vector of topics loaded from given filepath
+  # The file should contain one topic in one line
+  # Lines in the file starting with "-" are not included
+  getLibs("stringi")
+  topics  <- scan(filepath, blank.lines.skip = TRUE, sep="\n", what = "character", quiet = TRUE)
+  remove <- c()
+  
+  for (topic in topics){
+    if (stri_startswith_fixed(stri_trim(topic), "-")){
+      i <- which(topics %in% topic)
+      remove <- c(remove, i)
+    }
+  }
+  
+  topics <- topics[-remove]
+  
+  if (VERBOSE) {
+    cat("The topics are: ")
+    cat(topics, sep = ", ")
+  }
+  
+  topics
 }

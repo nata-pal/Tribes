@@ -1,23 +1,19 @@
 cleanDocs2 <- function(corpora, lang = "en"){
   getLibs(c("tm", "boilerpipeR"))
-
   
+  # Removing documents assigned to class 'N'
+  corpora <- corpora[meta(corpora, "class", "local")!="N"]
+  
+  # Modifying document's content
   corpora <- tm_map(corpora, content_transformer(function(x) ArticleExtractor(x)))
   corpora <- tm_map(corpora, content_transformer(function(x) iconv(enc2utf8(x), sub = "byte")))
-  
-  x <<- corpora
-  # readline()
-  
   corpora <- tm_map(corpora, content_transformer(tolower))
   corpora <- tm_map(corpora, removeNumbers)
   corpora <- tm_map(corpora, removePunctuation)
   corpora <- tm_map(corpora, removeWords, stopwords(lang))
   corpora <- tm_map(corpora, stemDocument, language = lang) 
   corpora <- tm_map(corpora, stripWhitespace)
-  
-  x <<- corpora
-  # readline()
-  
+    
   save(corpora, file="data/corpuses/_cleaned_corpus.Rdata")
   alarm()
   corpora
@@ -35,8 +31,6 @@ cleanDocs <- function(corpora, lang = "en"){
   corpora <- tm_map(corpora, content_transformer(function(x) stri_replace_all_regex(as.character(x), "<.+?>", " ")))
   corpora <- tm_map(corpora, content_transformer(function(x) gsub("http[[:alnum:]]*", "", x)))
   corpora <- tm_map(corpora, content_transformer(function(x) iconv(enc2utf8(x), sub = "byte")))
-  
-  
   corpora <- tm_map(corpora, content_transformer(tolower))
   corpora <- tm_map(corpora, removeNumbers)
   corpora <- tm_map(corpora, removePunctuation)
@@ -62,7 +56,6 @@ ClassTermMatrix <- function(corp){
   new_df <- new_df[,colSums(new_df)>1]
   dtm.df <- cbind(new_df, row.class)
   
-#   ctm <- aggregate(. ~ row.class, data=dtm.df, FUN=sum)
   ctm <- ddply(dtm.df, "row.class", numcolwise(sum))
   
 #   View(ctm)
@@ -91,9 +84,7 @@ getConditionalProbs <- function(ctm){
   
   r <- rbind(a, f, d)
   # Order by F-A
-  # r <- r[,order(-r[3,])]
-  
-#   View(r)
+  r <- r[,order(-r[3,])]
   r
 }
 
@@ -106,12 +97,6 @@ estimateNBClasses <- function(corp){
   cp <- getConditionalProbs(ctm)
   dtm <- as.matrix(DocumentTermMatrix(corp))
   dtm  <- dtmA <- dtmF<- dtm[,colnames(cp)]
-#   dtm[dtm>0] <- 1
-  
-  
-#   View(as.data.frame(cp))
-#   View(as.data.frame(ctm))
-#   View(as.data.frame(dtm))
 
   for(col in colnames(dtm)){
     dtmA[,col] <- cp["A",col]^dtm[,col]
@@ -123,19 +108,8 @@ estimateNBClasses <- function(corp){
 
   dtmA <- log(dtmA)
   dtmF <- log(dtmF)
-
-#   dtmA <- sweep(dtm, MARGIN = 2, as.numeric(as.vector(cp["A",])), "^")
-#   dtmF <- sweep(dtm, MARGIN = 2, as.numeric(as.vector(cp["F",])), "^")
-#   cat("\nmin A: ")
-#   cat(min(dtmA[dtmA>0]))
-#   cat("\nmin B: ")
-#   cat(min(dtmF[dtmF>0]))
-#   View(dtmA)
-#   View(dtmF)
   
   pxc <- cbind(A = apply(dtmA, 1, sum), F = apply(dtmF, 1, sum))
-
-#   View(pxc)
   
   meta <- meta(corp, "class", "local")
   pc.a <- length(meta[meta=="A"])/(length(meta[meta=="A"])+length(meta[meta=="F"]))
@@ -145,21 +119,10 @@ estimateNBClasses <- function(corp){
   pxc.log.f <- pxc[,"F"] + log(pc.f) 
 
   pxc.log <- cbind(A = pxc.log.a, F = pxc.log.f)
-
-  View(pxc.log)
-
   
   cnb <- colnames(pxc.log)[max.col(pxc.log,ties.method="first")]
   row.names(cnb) <- row.names(pxc.log)
 
-#   classProbs <- 
 #   class <- max(classProbs)
   cnb
 }
-
-
-
-
-# Useful link: https://class.coursera.org/nlp/lecture/131
-
-

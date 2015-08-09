@@ -1,4 +1,3 @@
-
 getTermsDissimPlot <- function(corpora){
   getLibs(c("tm", "proxy"))
   
@@ -14,7 +13,6 @@ getTermsDissimPlot <- function(corpora){
   
   docsTDM
 }
-
 
 getDocsDissimPlot <- function(corpora){
   getLibs(c("tm", "proxy"))
