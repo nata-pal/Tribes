@@ -128,10 +128,11 @@ estimateNBClasses <- function(corp){
 }
 
 removeTopicTypicalWords <- function(corpus){
-  # Minimal number of topics in which word has to occur
-  min <- 3
+  
   getLibs(c("tm", "stringi"))
   topics <- unlist(unique(meta(corpus, "topic", "local")))
+  # Minimal number of topics in which word has to occur
+  min <- ceiling(length(topics)*0.5)
   words <- c()
   for(t in topics){
     tc <- corpus[meta(corpus, "topic", "local") == t]
@@ -144,10 +145,21 @@ removeTopicTypicalWords <- function(corpus){
   print(length(rmWords))
   
   while(length(rmWords)>0){
-    b <- min(500, length(rmWords))
+    b <- min(1000, length(rmWords))
     words <- rmWords[1:b]
     corpus <- tm_map(corpus, removeWords, words)
-    rmWords <- rmWords[(b+1):length(rmWords)]
+    
+    if(b == length(rmWords)){
+      
+      rmWords <- c()
+      print(length(rmWords))
+      print("last")
+      
+    } else {
+      rmWords <- rmWords[(b+1):length(rmWords)]  
+      print(length(rmWords))
+    }
+    
   }
   corpus
 }

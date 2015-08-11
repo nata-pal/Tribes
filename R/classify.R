@@ -1,4 +1,4 @@
-classify <- function(dtm, classes){
+classify <- function(dtm, classes, VERBOSE= TRUE){
   getLibs("RTextTools")
   if(VERBOSE){
     print("INFO: # Error in drop(y %*% rep(1, nc)) może oznaczać, że w zbiorze testowym/trenującym znajdują się dokumenty tylko z jednej klasy\n")
