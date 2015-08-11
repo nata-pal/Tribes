@@ -126,3 +126,28 @@ estimateNBClasses <- function(corp){
 #   class <- max(classProbs)
   cnb
 }
+
+removeTopicTypicalWords <- function(corpus){
+  # Minimal number of topics in which word has to occur
+  min <- 3
+  getLibs(c("tm", "stringi"))
+  topics <- unlist(unique(meta(corpus, "topic", "local")))
+  words <- c()
+  for(t in topics){
+    tc <- corpus[meta(corpus, "topic", "local") == t]
+    dtm <- DocumentTermMatrix(tc, )
+    content <- dtm$dimnames$Terms
+    words <- c(as.vector(words), as.vector(content))
+  }
+  freq <<- all_words(words)
+  rmWords <<- freq$WORD[freq$FREQ < min ]
+  print(length(rmWords))
+  
+  while(length(rmWords)>0){
+    b <- min(500, length(rmWords))
+    words <- rmWords[1:b]
+    corpus <- tm_map(corpus, removeWords, words)
+    rmWords <- rmWords[(b+1):length(rmWords)]
+  }
+  corpus
+}
