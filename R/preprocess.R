@@ -10,7 +10,7 @@ cleanDocs2 <- function(corpora, lang = "en"){
   corpora <- tm_map(corpora, content_transformer(tolower))
   corpora <- tm_map(corpora, removeNumbers)
   corpora <- tm_map(corpora, removePunctuation)
-  corpora <- tm_map(corpora, removeWords, stopwords(lang))
+  corpora <- tm_map(corpora, removeWords, tm::stopwords(lang))
   corpora <- tm_map(corpora, stemDocument, language = lang) 
   corpora <- tm_map(corpora, stripWhitespace)
     
