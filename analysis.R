@@ -28,9 +28,14 @@ labelData <- function(){
   saveClassified(docs, c, meta(docs, "topic", "local")[[1]])
 }
 
-classify(corp.train, corp.test){
+classify <- function(corp.train, corp.test){
   getLibs("e1071")
-  dtm.train <- DocumentTermMatrix(corp.train)
+  
+  l <- length(corp.train) * 0.4
+  u <- length(corp.train) * 1
+  print(paste("l = ", l))
+  print(paste("u = ", u))
+  dtm.train <- DocumentTermMatrix(corp.train, control=list(bounds = list(global = c(l,u))))
   dtm.test <- DocumentTermMatrix(corp.test)
   
   df.train <- as.data.frame(as.matrix(dtm.train))
@@ -44,19 +49,25 @@ classify(corp.train, corp.test){
   df.test <- cbind(df.test, CLASS = class.test)
   
   model <- naiveBayes(CLASS ~ ., data = df.train)
-  p <- predict(model, df.test)
-  conf.mx <- table(p, df.test$CLASS)
+#   model <- svm(CLASS ~ ., data=df.train)
+  p <<- predict(model, df.test)
+
+  conf.mx <<-  confusionMatrix(data = p, reference = df.test$CLASS, positive = "F")
   print(conf.mx)
-  
-  tp <- conf.mx[1,1]    
-  fp <- conf.mx[2,1]    
-  tn <- conf.mx[2,2]    
-  fn <- conf.mx[1,2]    
-  
-  print(stri_paste("Error rate = ", error.rate <- (tp + tn) / (tp + tn + fp + fn)))
-  print(stri_paste("Recall = ", recall <-  tp / (tp + fn)))
-  print(stri_paste("Precision = ", precision <- tp / (tp + fp)))
-  print(stri_paste("F1 = ", f1 <- 2 * precision * recall / (precision + recall)))
-  
+
+#   conf.mx <- table(p, df.test$CLASS)
+#   print(conf.mx)
+#   
+#   tp <- conf.mx[1,1]    
+#   fp <- conf.mx[2,1]    
+#   tn <- conf.mx[2,2]    
+#   fn <- conf.mx[1,2]    
+#   
+#   print(stri_paste("Accuracy = ", acc <- (tp + tn) / (tp + tn + fp + fn)))
+#   print(stri_paste("Recall/sensitivity = ", recall <-  tp / (tp + fn)))
+#   print(stri_paste("Specifity = ", spec <-  tn / (tn + fp)))
+#   print(stri_paste("Precision = ", precision <- tp / (tp + fp)))
+#   print(stri_paste("F1 = ", f1 <- 2 * precision * recall / (precision + recall)))
+#   
   
 }
