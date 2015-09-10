@@ -28,13 +28,27 @@ labelData <- function(){
   saveClassified(docs, c, meta(docs, "topic", "local")[[1]])
 }
 
-classify <- function(corp.train, corp.test){
-  getLibs("e1071")
+processAll <- function(minDocs, breakpoint, lower, upper){
+  corpName <- load("C:/Users/Natalia/OneDrive/Magisterka/WORKSPACE/Tribes/Tribes/data/corpuses.train/_merged_corpus.Rdata")
+  c <- get(corpName)
+  rm(corpName)
+  print("Cleaning documents...")
+  c1 <- cleanDocs2(c)
+  print("Removing words typical for given topics...")
+  c2 <- removeTopicTypicalWords(corpus = c1, minDocs = minDocs)
+  print("Removing negligible words...")
+  c3 <- removeNegligibleWords(corpus = c2, breakpoint = breakpoint)
+  print("Classifing with Naive Bayes...")
+  classify(c3, ct, lower = lower, upper = upper)
+}
+
+classify <- function(corp.train, corp.test, lower = 0, upper = 1){
+  getLibs(c("e1071", "caret"))
   
-  l <- length(corp.train) * 0.4
-  u <- length(corp.train) * 1
-  print(paste("l = ", l))
-  print(paste("u = ", u))
+  l <- ceiling(length(corp.train) * lower)
+  u <- ceiling(length(corp.train) * upper)
+#   print(paste("l = ", l))
+#   print(paste("u = ", u))
   dtm.train <- DocumentTermMatrix(corp.train, control=list(bounds = list(global = c(l,u))))
   dtm.test <- DocumentTermMatrix(corp.test)
   

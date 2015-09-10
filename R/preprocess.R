@@ -72,10 +72,10 @@ getConditionalProbs <- function(ctm){
   
   nfor <- sum(ctm["F",])
   nagainst <- sum(ctm["A",])
-  cat("for total: ")
-  cat(nagainst)
-  cat("\nagainst total: ")
-  cat(nfor)
+#   cat("for total: ")
+#   cat(nagainst)
+#   cat("\nagainst total: ")
+#   cat(nfor)
   
   f <- ctm["F",] / nfor
   a <- ctm["A",] / nagainst
@@ -86,6 +86,17 @@ getConditionalProbs <- function(ctm){
   # Order by F-A
   r <- r[,order(-r[3,])]
   r
+}
+
+removeNegligibleWords <- function(corpus, breakpoint = 0.5, cond = 0){
+  if(cond==0){
+    cond  <- getConditionalProbs(ctm = ClassTermMatrix(corpus))
+  }
+  bp <- ceiling(ncol(cond) * breakpoint)
+  negligibleWords <- colnames(cond)[bp:ncol(cond)]
+#   View(negligibleWords)
+  
+  corpus <- tm_map(corpus, removeWords, negligibleWords)
 }
 
 estimateNBClasses <- function(corp){
@@ -127,12 +138,12 @@ estimateNBClasses <- function(corp){
   cnb
 }
 
-removeTopicTypicalWords <- function(corpus){
+removeTopicTypicalWords <- function(corpus, minDocs = 0.5){
   
-  getLibs(c("tm", "stringi"))
+  getLibs(c("tm", "stringi", "qdap"))
   topics <- unlist(unique(meta(corpus, "topic", "local")))
   # Minimal number of topics in which word has to occur
-  min <- ceiling(length(topics)*0.5)
+  min <- ceiling(length(topics)*minDocs)
   words <- c()
   for(t in topics){
     tc <- corpus[meta(corpus, "topic", "local") == t]
@@ -142,22 +153,22 @@ removeTopicTypicalWords <- function(corpus){
   }
   freq <<- all_words(words)
   rmWords <<- freq$WORD[freq$FREQ < min ]
-  print(length(rmWords))
+  cat(paste(length(rmWords), "... "))
   
   while(length(rmWords)>0){
-    b <- min(1000, length(rmWords))
+    b <- min(2000, length(rmWords))
     words <- rmWords[1:b]
     corpus <- tm_map(corpus, removeWords, words)
     
     if(b == length(rmWords)){
       
       rmWords <- c()
-      print(length(rmWords))
-      print("last")
+      cat(length(rmWords))
+      cat("last\n")
       
     } else {
       rmWords <- rmWords[(b+1):length(rmWords)]  
-      print(length(rmWords))
+      cat(paste(length(rmWords), "... "))
     }
     
   }
