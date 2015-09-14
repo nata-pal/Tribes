@@ -31,20 +31,25 @@ labelData <- function(){
 processAll <- function(minDocs, breakpoint, lower, upper){
   corpName <- load("C:/Users/Natalia/OneDrive/Magisterka/WORKSPACE/Tribes/Tribes/data/corpuses.train/_merged_corpus.Rdata")
   c <- get(corpName)
+  corpName <- load("C:/Users/Natalia/OneDrive/Magisterka/WORKSPACE/Tribes/Tribes/data/corpuses/_merged_corpus.Rdata")
+  ct <- get(corpName)
+#   print(levels(meta(c, "class", "local")))
   rm(corpName)
   print("Cleaning documents...")
+  ct1 <- cleanDocs2(ct)
   c1 <- cleanDocs2(c)
   print("Removing words typical for given topics...")
   c2 <- removeTopicTypicalWords(corpus = c1, minDocs = minDocs)
-  print("Removing negligible words...")
-  c3 <- removeNegligibleWords(corpus = c2, breakpoint = breakpoint)
+#   print("Removing negligible words...")
+#   c3 <- removeNegligibleWords(corpus = c2, breakpoint = breakpoint)
   print("Classifing with Naive Bayes...")
-  classify(c3, ct, lower = lower, upper = upper)
+  classify(c2, ct1, lower = lower, upper = upper)
+#   classify(c3, ct1, lower = lower, upper = upper)
+
 }
 
 classify <- function(corp.train, corp.test, lower = 0, upper = 1){
   getLibs(c("e1071", "caret"))
-  
   l <- ceiling(length(corp.train) * lower)
   u <- ceiling(length(corp.train) * upper)
 #   print(paste("l = ", l))
@@ -59,12 +64,17 @@ classify <- function(corp.train, corp.test, lower = 0, upper = 1){
   
   class.train <- unlist(meta(corp.train, "class", "local"))
   class.test <- unlist(meta(corp.test, "class", "local"))
+#   print(unique(class.train))
+#   print(unique(class.test))
   df.train <- cbind(df.train, CLASS = class.train)
   df.test <- cbind(df.test, CLASS = class.test)
   
   model <- naiveBayes(CLASS ~ ., data = df.train)
 #   model <- svm(CLASS ~ ., data=df.train)
   p <<- predict(model, df.test)
+#   print(levels(df.train$CLASS))
+#   print(levels(p))
+#   print(levels(df.test$CLASS))
 
   conf.mx <<-  confusionMatrix(data = p, reference = df.test$CLASS, positive = "F")
   print(conf.mx)

@@ -2,7 +2,7 @@ cleanDocs2 <- function(corpora, lang = "en"){
   getLibs(c("tm", "boilerpipeR"))
   
   # Removing documents assigned to class 'N'
-  corpora <- corpora[meta(corpora, "class", "local")!="N"]
+#   corpora <- corpora[meta(corpora, "class", "local")!="N"]
   
   # Modifying document's content
   corpora <- tm_map(corpora, content_transformer(function(x) ArticleExtractor(x)))
@@ -88,15 +88,17 @@ getConditionalProbs <- function(ctm){
   r
 }
 
-removeNegligibleWords <- function(corpus, breakpoint = 0.5, cond = 0){
-  if(cond==0){
+removeNegligibleWords <- function(corpus, breakpoint = 0.6){
+  if(breakpoint!=1){
+    getLibs(c("tm"))
     cond  <- getConditionalProbs(ctm = ClassTermMatrix(corpus))
+    bp <- ceiling(ncol(cond) * breakpoint)
+    negligibleWords <- colnames(cond)[bp:ncol(cond)]
+  #   View(negligibleWords)
+    
+    corpus <- tm_map(corpus, removeWords, negligibleWords)
   }
-  bp <- ceiling(ncol(cond) * breakpoint)
-  negligibleWords <- colnames(cond)[bp:ncol(cond)]
-#   View(negligibleWords)
-  
-  corpus <- tm_map(corpus, removeWords, negligibleWords)
+  corpus
 }
 
 estimateNBClasses <- function(corp){
@@ -139,38 +141,39 @@ estimateNBClasses <- function(corp){
 }
 
 removeTopicTypicalWords <- function(corpus, minDocs = 0.5){
-  
-  getLibs(c("tm", "stringi", "qdap"))
-  topics <- unlist(unique(meta(corpus, "topic", "local")))
-  # Minimal number of topics in which word has to occur
-  min <- ceiling(length(topics)*minDocs)
-  words <- c()
-  for(t in topics){
-    tc <- corpus[meta(corpus, "topic", "local") == t]
-    dtm <- DocumentTermMatrix(tc, )
-    content <- dtm$dimnames$Terms
-    words <- c(as.vector(words), as.vector(content))
-  }
-  freq <<- all_words(words)
-  rmWords <<- freq$WORD[freq$FREQ < min ]
-  cat(paste(length(rmWords), "... "))
-  
-  while(length(rmWords)>0){
-    b <- min(2000, length(rmWords))
-    words <- rmWords[1:b]
-    corpus <- tm_map(corpus, removeWords, words)
-    
-    if(b == length(rmWords)){
-      
-      rmWords <- c()
-      cat(length(rmWords))
-      cat("last\n")
-      
-    } else {
-      rmWords <- rmWords[(b+1):length(rmWords)]  
-      cat(paste(length(rmWords), "... "))
+  if(minDocs!=0){
+    getLibs(c("tm", "stringi", "qdap"))
+    topics <- unlist(unique(meta(corpus, "topic", "local")))
+    # Minimal number of topics in which word has to occur
+    min <- ceiling(length(topics)*minDocs)
+    words <- c()
+    for(t in topics){
+      tc <- corpus[meta(corpus, "topic", "local") == t]
+      dtm <- DocumentTermMatrix(tc, )
+      content <- dtm$dimnames$Terms
+      words <- c(as.vector(words), as.vector(content))
     }
+    freq <<- all_words(words)
+    rmWords <<- freq$WORD[freq$FREQ < min ]
+    cat(paste(length(rmWords), "... "))
     
+    while(length(rmWords)>0){
+      b <- min(2000, length(rmWords))
+      words <- rmWords[1:b]
+      corpus <- tm_map(corpus, removeWords, words)
+      
+      if(b == length(rmWords)){
+        
+        rmWords <- c()
+        cat(length(rmWords))
+        cat("last\n")
+        
+      } else {
+        rmWords <- rmWords[(b+1):length(rmWords)]  
+        cat(paste(length(rmWords), "... "))
+      }
+      
+    }
   }
   corpus
 }
