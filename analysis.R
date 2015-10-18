@@ -28,6 +28,42 @@ labelData <- function(){
   saveClassified(docs, c, meta(docs, "topic", "local")[[1]])
 }
 
+testMinDocs <- function(){
+  for(i in 0:10){
+    processAll(minDocs = (i*0.1), lower = 0, upper = 1)
+  }
+}
+
+
+
+processAll2 <- function(minDocs){
+  corpName <- load("C:/Users/Natalia/OneDrive/Magisterka/WORKSPACE/Tribes/Tribes/data/corpuses.train/_merged_corpus.Rdata")
+  c <- get(corpName)
+  corpName <- load("C:/Users/Natalia/OneDrive/Magisterka/WORKSPACE/Tribes/Tribes/data/corpuses/_merged_corpus.Rdata")
+  ct <- get(corpName)
+  rm(corpName)
+  
+  print("Cleaning documents...")
+  ct1 <- cleanDocs2(ct)
+  c1 <- cleanDocs2(c)
+  print("Removing words typical for given topics...")
+  c2 <- removeTopicTypicalWords(corpus = c1, minDocs = minDocs)
+
+  print("Classifing with Naive Bayes...")
+  for(i in 1:9){
+    for(j in (i+1):10){
+      print("================================")
+      print(paste("minDocs = ", minDocs))
+      print(paste("lower = ", (i*0.1)))
+      print(paste("upper = ", (j*0.1)))
+      e <- tryCatch(classify(c2, ct1, lower = (i*0.1), upper = (j*0.1)), error = function(cond)"skip")
+      if(e == "skip") next
+    }
+  }  
+}
+
+
+
 processAll <- function(minDocs, breakpoint, lower, upper){
   corpName <- load("C:/Users/Natalia/OneDrive/Magisterka/WORKSPACE/Tribes/Tribes/data/corpuses.train/_merged_corpus.Rdata")
   c <- get(corpName)
@@ -40,10 +76,25 @@ processAll <- function(minDocs, breakpoint, lower, upper){
   c1 <- cleanDocs2(c)
   print("Removing words typical for given topics...")
   c2 <- removeTopicTypicalWords(corpus = c1, minDocs = minDocs)
-#   print("Removing negligible words...")
-#   c3 <- removeNegligibleWords(corpus = c2, breakpoint = breakpoint)
-  print("Classifing with Naive Bayes...")
-  classify(c2, ct1, lower = lower, upper = upper)
+  print("Removing negligible words...")
+  c3 <- removeNegligibleWords(corpus = c2, breakpoint = breakpoint)
+#   print("Classifing with Naive Bayes...")
+#   for(i in 1:9){
+#     for(j in (i+1):10){
+#       print("================================")
+#       print(paste("minDocs = ", minDocs))
+#       print(paste("lower = ", (i*0.1)))
+#       print(paste("upper = ", (j*0.1)))
+#       e <- tryCatch(classify(c2, ct1, lower = (i*0.1), upper = (j*0.1)), error = function(cond)"skip")
+# #       e <- tryCatch(classify(c2, ct1, lower = (0.6), upper = (0.7)), error = function(cond) next)
+#       if(e == "skip") next
+#       else {
+#         print("ok")
+#         print(e)
+#       }
+#     }
+#   }
+#   classify(c2, ct1, lower = lower, upper = upper)
 #   classify(c3, ct1, lower = lower, upper = upper)
 
 }
@@ -58,6 +109,7 @@ classify <- function(corp.train, corp.test, lower = 0, upper = 1){
   dtm.test <- DocumentTermMatrix(corp.test)
   
   df.train <- as.data.frame(as.matrix(dtm.train))
+  my.dtm <<- df.train
   df.test <- as.data.frame(as.matrix(dtm.test))
   rownames(df.train) <- unlist(meta(corp.train, "id", "local"))
   rownames(df.test) <- unlist(meta(corp.test, "id", "local"))
@@ -78,7 +130,7 @@ classify <- function(corp.train, corp.test, lower = 0, upper = 1){
 
   conf.mx <<-  confusionMatrix(data = p, reference = df.test$CLASS, positive = "F")
   print(conf.mx)
-
+  conf.mx
 #   conf.mx <- table(p, df.test$CLASS)
 #   print(conf.mx)
 #   

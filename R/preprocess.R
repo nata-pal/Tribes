@@ -2,7 +2,7 @@ cleanDocs2 <- function(corpora, lang = "en"){
   getLibs(c("tm", "boilerpipeR"))
   
   # Removing documents assigned to class 'N'
-#   corpora <- corpora[meta(corpora, "class", "local")!="N"]
+  corpora <- corpora[meta(corpora, "class", "local")!="N"]
   
   # Modifying document's content
   corpora <- tm_map(corpora, content_transformer(function(x) ArticleExtractor(x)))
@@ -44,23 +44,33 @@ cleanDocs <- function(corpora, lang = "en"){
 
 ClassTermMatrix <- function(corp){
   getLibs(c("plyr", "tm"))
-  dtm <- DocumentTermMatrix(corp)
+  
+  l <- ceiling(length(corp) * 0.1)
+  u <- ceiling(length(corp) * 0.5)
+  dtm <- DocumentTermMatrix(corp, control=list(bounds = list(global = c(l,u))))
+  
+#   dtm <- DocumentTermMatrix(corp)
+  ncol(as.matrix(dtm))
   dtm.df <- as.data.frame(as.matrix(dtm))
+  print(ncol(dtm.df))
   row.class <- unlist(meta(corp, "class", "local"), recursive = FALSE)
   dtm.df <- cbind(dtm.df, row.class)
+  print(ncol(dtm.df))
   
   dtm.df <- dtm.df[dtm.df$row.class!='N',]
   row.class <- dtm.df$row.class
   new_df <- dtm.df[sapply(dtm.df,is.numeric)]
+  print(ncol(dtm.df))
   
-  new_df <- new_df[,colSums(new_df)>1]
+#   new_df <- new_df[,colSums(new_df)>1]
   dtm.df <- cbind(new_df, row.class)
+  print(ncol(dtm.df))
   
   ctm <- ddply(dtm.df, "row.class", numcolwise(sum))
   
 #   View(ctm)
 #   View(new_df)
-#   n <- ncol(dtm.df)
+  n <<- ncol(dtm.df)
 #   View(dtm.df[(n-50):n])
   ctm
 }
@@ -70,8 +80,8 @@ getConditionalProbs <- function(ctm){
   rownames(ctm) <- ctm$row.class
   ctm <- ctm[sapply(ctm, is.numeric)]
   
-  nfor <- sum(ctm["F",])
-  nagainst <- sum(ctm["A",])
+  nfor <<- sum(ctm["F",])
+  nagainst <<- sum(ctm["A",])
 #   cat("for total: ")
 #   cat(nagainst)
 #   cat("\nagainst total: ")
@@ -85,11 +95,12 @@ getConditionalProbs <- function(ctm){
   r <- rbind(a, f, d)
   # Order by F-A
   r <- r[,order(-r[3,])]
+  prob <<- r
   r
 }
 
 removeNegligibleWords <- function(corpus, breakpoint = 0.6){
-  if(breakpoint!=1){
+#   if(breakpoint!=1){
     getLibs(c("tm"))
     cond  <- getConditionalProbs(ctm = ClassTermMatrix(corpus))
     bp <- ceiling(ncol(cond) * breakpoint)
@@ -97,7 +108,7 @@ removeNegligibleWords <- function(corpus, breakpoint = 0.6){
   #   View(negligibleWords)
     
     corpus <- tm_map(corpus, removeWords, negligibleWords)
-  }
+#   }
   corpus
 }
 

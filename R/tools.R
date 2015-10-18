@@ -115,3 +115,25 @@ getTopics <- function(filepath, VERBOSE = FALSE){
   
   topics
 }
+
+changeExtension <- function(newExt, path){
+  getLibs("stringi")
+  files <- dir(path, recursive = FALSE)
+  for (fileName in files){
+    file <- stri_paste(path, fileName)
+    newFile <- stri_replace_last(file, newExt, regex = ".txt")
+    file.rename(file, newFile)
+  }
+}
+
+getWordcloud <- function(corpus){
+  tdm <- TermDocumentMatrix(corpus)
+  m <- as.matrix(tdm)
+  v <- sort(rowSums(m), decreasing=TRUE)
+  d <- data.frame(word = names(v), freq=v)
+  pal <- brewer.pal(70, "BuGn")
+  pal <- pal[-(1:2)]
+#   png("wordcloud.png", width=1280, height=800)
+  wordcloud(d$word,d$freq, scale=c(8,.3), min.freq=1, max.words=150, random.order=T, rot.per=.15, colors=pal, vfont=c("sans serif","plain"))
+#   dev.off()
+}
